@@ -97,6 +97,7 @@ public class MainActivity extends Activity {
                 ContainerHolderSingleton.setContainerHolder(containerHolder);
                 ContainerLoadedCallback.registerCallbacksForContainer(container);
                 containerHolder.setContainerAvailableListener(new ContainerLoadedCallback());
+                updateUI();
             }
         }, TIMEOUT_FOR_CONTAINER_OPEN_MILLISECONDS, TimeUnit.MILLISECONDS);
         
@@ -253,8 +254,9 @@ public class MainActivity extends Activity {
         public void onContainerAvailable(ContainerHolder containerHolder, String containerVersion) {
             // We load each container when it becomes available.
             Container container = containerHolder.getContainer();
-            container.registerFunctionCallMacroCallback("volume", new musicVolumeHandler(mContext));
-            registerCallbacksForContainer(container);
+            container.registerFunctionCallMacroCallback("bluetoothstate", new BlueToothHandler());
+            
+            
         }
 
         public static void registerCallbacksForContainer(Container container) {
