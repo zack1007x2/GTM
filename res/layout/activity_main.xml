@@ -11,7 +11,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="17dp"
-        android:text="None"
+        android:text="Null"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="40sp" />
 
