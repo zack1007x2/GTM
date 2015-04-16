@@ -51,10 +51,6 @@ public class MainActivity extends Activity {
 		ContainerHolderSingleton.setContainerHolder(mContainerHolder);
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
-		if (mContainerHolder != null) {
-			ContainerHolderSingleton.getContainerHolder().refresh();
-		}
-
 	}
 
 	@Override
