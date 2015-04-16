@@ -5,8 +5,10 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -37,11 +39,11 @@ public class MainActivity extends Activity {
     private static final String NAME_KEY = "name";
     private static final String MONEY_KEY = "money";
     private static final long TIMEOUT_FOR_CONTAINER_OPEN_MILLISECONDS = 2000;
-    
 
     // Set to false for release build.
     private static final Boolean DEVELOPER_BUILD = true;
     private ContainerHolder mContainerHolder = null;
+    public static Context mContext;
 
     private void setContainerHolder(ContainerHolder containerHolder) {
       this.mContainerHolder = containerHolder;
@@ -64,9 +66,8 @@ public class MainActivity extends Activity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
 //        new DownloadContainerTask(this).execute(CONTAINER_ID);
-        
+        mContext = MainActivity.this.getApplicationContext();
         TagManager tagManager = TagManager.getInstance(this);
 
         // Modify the log level of the logger to print out not only
@@ -252,6 +253,7 @@ public class MainActivity extends Activity {
         public void onContainerAvailable(ContainerHolder containerHolder, String containerVersion) {
             // We load each container when it becomes available.
             Container container = containerHolder.getContainer();
+            container.registerFunctionCallMacroCallback("volume", new musicVolumeHandler(mContext));
             registerCallbacksForContainer(container);
         }
 
@@ -289,5 +291,8 @@ public class MainActivity extends Activity {
                 throw new IllegalArgumentException("Custom macro name: " + name + " is not supported.");
             }
         }
+        
     }
+    
+   
 }
