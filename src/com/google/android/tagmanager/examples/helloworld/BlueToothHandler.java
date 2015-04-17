@@ -9,7 +9,7 @@ import android.util.Log;
 import com.google.android.gms.tagmanager.Container.FunctionCallMacroCallback;
 
 public class BlueToothHandler implements FunctionCallMacroCallback {
-	
+	private static boolean isBlueToothOn;
 	
 
 	@Override
@@ -17,7 +17,12 @@ public class BlueToothHandler implements FunctionCallMacroCallback {
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
 		Log.d("Zack",mBluetoothAdapter.isEnabled()+"");
+		isBlueToothOn = mBluetoothAdapter.isEnabled();
 		return mBluetoothAdapter.isEnabled();
+	}
+	
+	public static boolean isBlueToothOn(){
+		return isBlueToothOn;
 	}
 
 }
