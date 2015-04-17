@@ -239,6 +239,7 @@ public class MainActivity extends Activity {
 			Container container = containerHolder.getContainer();
 			container.registerFunctionCallMacroCallback("bluetoothstate",
 					new BlueToothHandler());
+			container.registerFunctionCallTagCallback("testTag", new Handler123());
 		}
 
 	}
