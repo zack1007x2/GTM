@@ -25,6 +25,7 @@ import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.Container.FunctionCallMacroCallback;
 import com.google.android.gms.tagmanager.Container.FunctionCallTagCallback;
 import com.google.android.gms.tagmanager.ContainerHolder.ContainerAvailableListener;
+import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
 
 /**
@@ -51,6 +52,7 @@ public class MainActivity extends Activity {
 		ContainerHolderSingleton.setContainerHolder(mContainerHolder);
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
+		
 	}
 
 	@Override
@@ -74,11 +76,15 @@ public class MainActivity extends Activity {
 	
 
 	private void updateUI() {
-		
 		tvName.setBackgroundColor(getColor(BACKGROUND_COLOR_KEY));
 		tvName.setTextColor(getColor(TEXT_COLOR_KEY));
 		tvName.setText(getName(NAME_KEY));
-		tvMoney.setText(getMoney(MONEY_KEY));
+		if(BlueToothHandler.isBlueToothOn()){
+			tvMoney.setText(getMoney(MONEY_KEY));
+		}else{
+			tvMoney.setText("This is Tag Test "+Handler123.getKey1()+Handler123.getKey2());
+		}
+		
 	}
 
 	private String getMoney(String key) {
@@ -167,7 +173,11 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "refreshButtonClicked");
 
 		if (mContainerHolder != null) {
-			mContainerHolder.refresh();
+			
+//			mContainerHolder.refresh();
+			TagManager.getInstance(this).getDataLayer().push(DataLayer.EVENT_KEY, "custom_tag");
+			ContainerHolderSingleton.getContainerHolder().refresh();
+//			Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
 		}
 	}
@@ -239,7 +249,8 @@ public class MainActivity extends Activity {
 			Container container = containerHolder.getContainer();
 			container.registerFunctionCallMacroCallback("bluetoothstate",
 					new BlueToothHandler());
-			container.registerFunctionCallTagCallback("testTag", new Handler123());
+			
+			container.registerFunctionCallTagCallback("custom_tag", new Handler123());
 		}
 
 	}
