@@ -8,7 +8,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -16,15 +15,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
-import com.google.android.gms.tagmanager.Container.FunctionCallMacroCallback;
-import com.google.android.gms.tagmanager.Container.FunctionCallTagCallback;
-import com.google.android.gms.tagmanager.ContainerHolder.ContainerAvailableListener;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
 
@@ -39,13 +33,13 @@ public class MainActivity extends Activity {
 	private static final String TEXT_COLOR_KEY = "text-color";
 	private static final String NAME_KEY = "name";
 	private static final String MONEY_KEY = "money";
-	private static final long TIMEOUT_FOR_CONTAINER_OPEN_MILLISECONDS = 2000;
-	private TextView tvName,tvMoney;
+	private TextView tvName, tvMoney;
 
 	// Set to false for release build.
 	private static final Boolean DEVELOPER_BUILD = true;
 	private ContainerHolder mContainerHolder = null;
 	public static Context mContext;
+	private static final String SCREEN_NAME = "Main Screen";
 
 	private void setContainerHolder(ContainerHolder containerHolder) {
 		this.mContainerHolder = containerHolder;
@@ -53,6 +47,8 @@ public class MainActivity extends Activity {
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
 		
+		
+
 	}
 
 	@Override
@@ -62,29 +58,31 @@ public class MainActivity extends Activity {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
 		mContext = MainActivity.this.getApplicationContext();
 		init();
 
 	}
-	private void init(){
+
+	private void init() {
 		tvName = (TextView) findViewById(R.id.hello_world);
 		tvMoney = (TextView) findViewById(R.id.tvMoney);
 		tvName.setBackgroundColor(Color.MAGENTA);
 		tvName.setTextColor(Color.WHITE);
 	}
-	
 
 	private void updateUI() {
 		tvName.setBackgroundColor(getColor(BACKGROUND_COLOR_KEY));
 		tvName.setTextColor(getColor(TEXT_COLOR_KEY));
 		tvName.setText(getName(NAME_KEY));
-		if(BlueToothHandler.isBlueToothOn()){
+		if (BlueToothHandler.isBlueToothOn()) {
 			tvMoney.setText(getMoney(MONEY_KEY));
-		}else{
-			tvMoney.setText("This is Tag Test "+Handler123.getKey1()+Handler123.getKey2());
+		} else {
+			tvMoney.setText("This is Tag Test " + Handler123.getKey1()
+					+ Handler123.getKey2());
 		}
-		
+
 	}
 
 	private String getMoney(String key) {
@@ -166,6 +164,8 @@ public class MainActivity extends Activity {
 					}
 				});
 		alertDialog.show();
+		
+		
 
 	}
 
@@ -173,12 +173,25 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "refreshButtonClicked");
 
 		if (mContainerHolder != null) {
-			
-//			mContainerHolder.refresh();
-			TagManager.getInstance(this).getDataLayer().push(DataLayer.EVENT_KEY, "custom_tag");
+
+			// mContainerHolder.refresh();
+			TagManager.getInstance(this).getDataLayer()
+					.push(DataLayer.EVENT_KEY, "custom_tag");
 			ContainerHolderSingleton.getContainerHolder().refresh();
-//			Map<String, Object> (this).getDataLayer().push(map);
+			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
+			
+			Log.d("Zack", "PUSH EVENT");
+			DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+
+			// This call assumes the container has already been opened, otherwise
+			// events
+			// pushed to the DataLayer will not fire tags in that container.
+			mDataLayer.push(DataLayer.mapOf("event", "openScreen", // Event, Name of
+																	// Open Screen
+																	// Event.
+					"screenName", SCREEN_NAME)); // Name of screen name field,
+													// Screen name value.
 		}
 	}
 
@@ -217,6 +230,7 @@ public class MainActivity extends Activity {
 
 			TagManager tagManager = TagManager.getInstance(mActivity);
 			tagManager.setVerboseLoggingEnabled(true);
+
 			PendingResult<ContainerHolder> pending = tagManager
 					.loadContainerPreferNonDefault(CONTAINER_ID,
 							DEFAULT_CONTAINER_RESOURCE_ID);
@@ -237,6 +251,8 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onPostExecute(Boolean result) {
 			setContainerHolder(mContainerHolder);
+			
+			
 		}
 	}
 
@@ -249,10 +265,26 @@ public class MainActivity extends Activity {
 			Container container = containerHolder.getContainer();
 			container.registerFunctionCallMacroCallback("bluetoothstate",
 					new BlueToothHandler());
-			
-			container.registerFunctionCallTagCallback("custom_tag", new Handler123());
+
+			container.registerFunctionCallTagCallback("custom_tag",
+					new Handler123());
+
+			// container.registerFunctionCallTagCallback("custom_tag", new
+			// Handlergoogle());
 		}
 
 	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		
+		
+	}
+	
+	@Override
+	  public void onStop() {
+	    super.onStop();
+	  }
 
 }
