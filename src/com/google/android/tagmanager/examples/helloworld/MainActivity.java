@@ -21,14 +21,17 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.analytics.Logger.LogLevel;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
+import com.google.android.tagmanager.examples.helloworld.CrashApplication.TrackerName;
 
 /**
  * An {@link Activity} that reads background and text color from a local Json
@@ -71,11 +74,27 @@ public class MainActivity extends Activity {
 		init();
 		allowcaculate = false;
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
+		try{		
+			String s =null;
+			System.out.print("A = "+s.toString());
+		}catch(Exception e){
+			GoogleAnalytics.getInstance(this).setDryRun(true);
+			GoogleAnalytics.getInstance(this).getLogger()
+		    .setLogLevel(LogLevel.VERBOSE);
+			
+			Tracker t = ((CrashApplication) this.getApplication()).getTracker(
+				    TrackerName.GLOBAL_TRACKER);
 
-		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-
-		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
-				SCREEN_NAME));
+				  t.send(new HitBuilders.ExceptionBuilder()
+				      .setDescription(
+				          new StandardExceptionParser(mContext, null)
+				              .getDescription(Thread.currentThread().getName(), e))
+				      .setFatal(false)
+				      .build());
+		}
+		
+		
+		
 
 	}
 
@@ -96,7 +115,6 @@ public class MainActivity extends Activity {
 			tvMoney.setText("This is Tag Test " + Handler123.getKey1()
 					+ Handler123.getKey2());
 		}
-
 	}
 
 	private String getMoney(String key) {
@@ -247,8 +265,8 @@ public class MainActivity extends Activity {
 		protected Boolean doInBackground(String... params) {
 			String containerId = params[0];
 
-			TagManager tagManager = TagManager.getInstance(mActivity);
-			tagManager.setVerboseLoggingEnabled(true);
+				TagManager tagManager = TagManager.getInstance(mActivity);
+				tagManager.setVerboseLoggingEnabled(true);
 
 			PendingResult<ContainerHolder> pending = tagManager
 					.loadContainerPreferNonDefault(CONTAINER_ID,
@@ -298,7 +316,10 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
+		TagManager.getInstance(this).setVerboseLoggingEnabled(true);
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+		mDataLayer.pushEvent("openScreen", DataLayer.mapOf("screenName", SCREEN_NAME));
+		mDataLayer.push("a", "B");
 	}
 
 	@Override

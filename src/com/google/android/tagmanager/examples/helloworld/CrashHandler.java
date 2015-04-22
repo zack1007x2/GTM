@@ -14,9 +14,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Logger.LogLevel;
 import com.google.android.gms.analytics.StandardExceptionParser;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
+import com.google.android.tagmanager.examples.helloworld.CrashApplication.TrackerName;
 
 import android.content.Context;
 import android.content.Intent;
@@ -196,17 +201,35 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 	public void run() {
 		if (isOnline()) {
 			Log.d("Zack","isError");
-			DataLayer CrashDataLayer = TagManager.getInstance(mContext)
-					.getDataLayer();
+			GoogleAnalytics.getInstance(mContext).setDryRun(true);
+			GoogleAnalytics.getInstance(mContext).getLogger()
+		    .setLogLevel(LogLevel.VERBOSE);
+			
+			Tracker t = ((CrashApplication) ((MainActivity) mContext).getApplication()).getTracker(
+				    TrackerName.GLOBAL_TRACKER);
+
+				  t.send(new HitBuilders.ExceptionBuilder()
+				      .setDescription(
+				          new StandardExceptionParser(mContext, null)
+				              .getDescription(Thread.currentThread().getName(), this.errorInfoToFile))
+				      .setFatal(false)
+				      .build());
+			
+			
+			Log.d("Zack", new StandardExceptionParser(mContext, null)
+			.getDescription(Thread.currentThread()
+					.getName(), this.errorInfoToFile));
+			TagManager tagManager = TagManager.getInstance(mContext);
+			tagManager.setVerboseLoggingEnabled(true);
+			DataLayer CrashDataLayer = tagManager.getDataLayer();
 			CrashDataLayer.push(DataLayer.mapOf("Description",
 					new StandardExceptionParser(mContext, null)
 							.getDescription(Thread.currentThread()
 									.getName(), this.errorInfoToFile), "IsFatal", "true",
 					"isCrash", "true"));
+			
 		}else{
 			saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
 		}
-		// TODO Auto-generated method stub
-		
 	}
 }
