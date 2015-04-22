@@ -1,13 +1,18 @@
 package com.google.android.tagmanager.examples.helloworld;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -16,6 +21,9 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.StandardExceptionParser;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
@@ -40,15 +48,17 @@ public class MainActivity extends Activity {
 	private ContainerHolder mContainerHolder = null;
 	public static Context mContext;
 	private static final String SCREEN_NAME = "Main Screen";
+	private long pastTime;
+	private boolean allowcaculate;
 
-	private void setContainerHolder(ContainerHolder containerHolder) {
+	private void setContainerHolder(ContainerHolder containerHolder,
+			long pastTime) {
 		this.mContainerHolder = containerHolder;
 		ContainerHolderSingleton.setContainerHolder(mContainerHolder);
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
-		
-		
-
+		this.pastTime = pastTime;
+		allowcaculate = true;
 	}
 
 	@Override
@@ -58,10 +68,14 @@ public class MainActivity extends Activity {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		new DownloadContainerTask(this).execute(CONTAINER_ID);
-		mContext = MainActivity.this.getApplicationContext();
 		init();
+		allowcaculate = false;
+		new DownloadContainerTask(this).execute(CONTAINER_ID);
+
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+
+		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
+				SCREEN_NAME));
 
 	}
 
@@ -164,8 +178,6 @@ public class MainActivity extends Activity {
 					}
 				});
 		alertDialog.show();
-		
-		
 
 	}
 
@@ -180,18 +192,24 @@ public class MainActivity extends Activity {
 			ContainerHolderSingleton.getContainerHolder().refresh();
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
-			
-			Log.d("Zack", "PUSH EVENT");
-			DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
 
-			// This call assumes the container has already been opened, otherwise
-			// events
-			// pushed to the DataLayer will not fire tags in that container.
-			mDataLayer.push(DataLayer.mapOf("event", "openScreen", // Event, Name of
-																	// Open Screen
-																	// Event.
-					"screenName", SCREEN_NAME)); // Name of screen name field,
-													// Screen name value.
+			DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+			if (allowcaculate) {
+				Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
+				mDataLayer.push(DataLayer.mapOf("Var", "reFreshbtn",
+						"Category", "LoadcontainerTime", "Time", pastTime,
+						"btnRefresh", "isClisk"));
+				allowcaculate = false;
+			}
+			
+			ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+			MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+			activityManager.getMemoryInfo(memoryInfo);
+			Log.i("memory free", "" + memoryInfo.availMem);
+//			String as = null;
+//			as.toString();
+			
+
 		}
 	}
 
@@ -214,6 +232,7 @@ public class MainActivity extends Activity {
 	// is completed.
 	private class DownloadContainerTask extends
 			AsyncTask<String, Void, Boolean> {
+		long StartTime = System.currentTimeMillis();
 		private static final long TIMEOUT_FOR_CONTAINER_OPEN_MILLISECONDS = 2000;
 		private static final int DEFAULT_CONTAINER_RESOURCE_ID = R.raw.gtm_5bqr5j_json;
 
@@ -250,9 +269,10 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Boolean result) {
-			setContainerHolder(mContainerHolder);
-			
-			
+
+			long endTime = System.currentTimeMillis();
+			long pastTime = endTime - StartTime;
+			setContainerHolder(mContainerHolder, pastTime);
 		}
 	}
 
@@ -278,13 +298,21 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		
-		
+
 	}
-	
+
 	@Override
-	  public void onStop() {
-	    super.onStop();
-	  }
+	public void onStop() {
+		super.onStop();
+	}
+
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
+	}
 
 }
