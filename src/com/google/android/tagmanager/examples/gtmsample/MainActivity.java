@@ -1,5 +1,6 @@
-package com.google.android.tagmanager.examples.helloworld;
+package com.google.android.tagmanager.examples.gtmsample;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +11,7 @@ import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -29,6 +31,7 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
+import com.google.android.tagmanager.examples.helloworld.R;
 
 /**
  * An {@link Activity} that reads background and text color from a local Json
@@ -49,7 +52,6 @@ public class MainActivity extends Activity {
 	public static Context mContext;
 	private static final String SCREEN_NAME = "Main Screen";
 	private long pastTime;
-	private boolean allowcaculate;
 
 	private void setContainerHolder(ContainerHolder containerHolder,
 			long pastTime) {
@@ -58,7 +60,13 @@ public class MainActivity extends Activity {
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
 		this.pastTime = pastTime;
-		allowcaculate = true;
+		Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+		mDataLayer
+		.push(DataLayer.mapOf("Var", "reFreshbtn", "Category",
+				"AsyncTask", "Time", pastTime,"Label","LoadContainerTime", "btnRefresh",
+				"isClick"));
+		
 	}
 
 	@Override
@@ -69,14 +77,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		init();
-		allowcaculate = false;
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
-
-		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-
-		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
-				SCREEN_NAME));
-
 	}
 
 	private void init() {
@@ -144,9 +145,20 @@ public class MainActivity extends Activity {
 				});
 		alertDialog.show();
 	}
+	public void StartSecondActivity(View view){
+		Intent intent  = new Intent();
+		intent.setClass(this, Second.class);
+		startActivity(intent);
+	}
 
 	public void colorButtonClicked(@SuppressWarnings("unused") View view) {
-		Log.i(TAG, "colorButtonClicked");
+		Log.d("Zack","PUSH  GetInfoBtnClicked");
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+		mDataLayer.push(DataLayer.mapOf("event",
+				"getinfo", // Event, Name of Open Screen Event.
+				"Label", "null", "Value",
+				"GetInfoBtn"));
+
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle("Getting Info");
 		// The container holder might have not been set at this moment. For an
@@ -193,22 +205,8 @@ public class MainActivity extends Activity {
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
 
-			DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-			if (allowcaculate) {
-				Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
-				mDataLayer.push(DataLayer.mapOf("Var", "reFreshbtn",
-						"Category", "LoadcontainerTime", "Time", pastTime,
-						"btnRefresh", "isClisk"));
-				allowcaculate = false;
-			}
-			
-			ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-			MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-			activityManager.getMemoryInfo(memoryInfo);
-			Log.i("memory free", "" + memoryInfo.availMem);
-//			String as = null;
-//			as.toString();
-			
+			String a[] = new String[1];
+			System.out.print(a[3]);
 
 		}
 	}
@@ -298,7 +296,10 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
+		Log.d("Zack","PUSH   ScreenOpen");
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
+				SCREEN_NAME));
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.google.android.tagmanager.examples.helloworld;
+package com.google.android.tagmanager.examples.gtmsample;
 
 import java.util.Map;
 

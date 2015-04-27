@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
-        android:name=".CrashApplication"
+        android:name="com.google.android.tagmanager.examples.gtmsample.CrashApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -25,14 +25,17 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.google.android.tagmanager.examples.helloworld.MainActivity"
+            android:name="com.google.android.tagmanager.examples.gtmsample.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+         <activity
+            android:name="com.google.android.tagmanager.examples.gtmsample.Second"
+            android:label="@string/app_name" >
+		</activity>
         <!--  Add preview activity.  -->
         <activity
             android:name="com.google.android.gms.tagmanager.PreviewActivity"

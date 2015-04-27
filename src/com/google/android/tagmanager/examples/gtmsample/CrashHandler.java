@@ -1,4 +1,4 @@
-package com.google.android.tagmanager.examples.helloworld;
+package com.google.android.tagmanager.examples.gtmsample;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -195,7 +195,7 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 	@Override
 	public void run() {
 		if (isOnline()) {
-			Log.d("Zack","isError");
+			Log.d("Zack","PUSHisError");
 			DataLayer CrashDataLayer = TagManager.getInstance(mContext)
 					.getDataLayer();
 			CrashDataLayer.push(DataLayer.mapOf("Description",
@@ -206,7 +206,5 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		}else{
 			saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
 		}
-		// TODO Auto-generated method stub
-		
 	}
 }
