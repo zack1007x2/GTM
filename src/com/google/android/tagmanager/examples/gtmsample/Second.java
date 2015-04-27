@@ -34,7 +34,7 @@ public class Second extends Activity{
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("Zack","PUSH   ScreenOpen");
+		Log.d("Zack","PUSH   SecondScreenOpen");
 		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
 		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
 				SCREEN_NAME));

@@ -203,8 +203,10 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 							.getDescription(Thread.currentThread()
 									.getName(), this.errorInfoToFile), "IsFatal", "true",
 					"isCrash", "true"));
-		}else{
-			saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
 		}
+//		}else{
+//			saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
+//		}
 	}
+	
 }

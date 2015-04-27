@@ -6,6 +6,9 @@ public class CrashApplication extends Application {
     public void onCreate() {  
         super.onCreate();  
     	CrashHandler crashHandler = CrashHandler.getInstance();  
-    	crashHandler.init(this);  
+    	crashHandler.init(this);
+    	
     }  
+    
+    
 }

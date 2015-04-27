@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import com.google.tagmanager.ContainerOpener;
+import com.google.tagmanager.ContainerOpener.OpenType;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -50,6 +52,7 @@ public class MainActivity extends Activity {
 	private static final Boolean DEVELOPER_BUILD = true;
 	private ContainerHolder mContainerHolder = null;
 	public static Context mContext;
+	public DataLayer mDatalayer;
 	private static final String SCREEN_NAME = "Main Screen";
 	private long pastTime;
 
@@ -60,13 +63,14 @@ public class MainActivity extends Activity {
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
 		this.pastTime = pastTime;
-		Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
-		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer
-		.push(DataLayer.mapOf("Var", "reFreshbtn", "Category",
-				"AsyncTask", "Time", pastTime,"Label","LoadContainerTime", "btnRefresh",
-				"isClick"));
-		
+		if (mDatalayer != null) {
+			Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
+			
+			mDatalayer.push(DataLayer.mapOf("Var", "reFreshbtn", "Category",
+					"AsyncTask", "Time", pastTime, "Label",
+					"LoadContainerTime", "btnRefresh", "isClick"));
+		}
+
 	}
 
 	@Override
@@ -76,6 +80,26 @@ public class MainActivity extends Activity {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		mDatalayer = TagManager.getInstance(this).getDataLayer();
+		 TagManager mTagManager = TagManager.getInstance(this);
+
+		    // The container is returned to containerFuture when available.
+		    ContainerOpener.openContainer(
+		        mTagManager,                            // TagManager instance.
+		        CONTAINER_ID,                           // Tag Manager Container ID.
+		        OpenType.PREFER_NON_DEFAULT,            // Prefer not to get the default container, but stale is OK.
+		        null,                                   // Time to wait for saved container to load (ms). Default is 2000ms.
+		        new ContainerOpener.Notifier() {        // Called when container loads.
+		          @Override
+		          public void containerAvailable(Container container) {
+		            // Handle assignment in callback to avoid blocking main thread.
+		            mContainer = container;
+		          }
+		        }
+		    );
+		
+		
+		
 		init();
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
 	}
@@ -145,19 +169,20 @@ public class MainActivity extends Activity {
 				});
 		alertDialog.show();
 	}
-	public void StartSecondActivity(View view){
-		Intent intent  = new Intent();
+
+	public void StartSecondActivity(View view) {
+		Intent intent = new Intent();
 		intent.setClass(this, Second.class);
 		startActivity(intent);
 	}
 
 	public void colorButtonClicked(@SuppressWarnings("unused") View view) {
-		Log.d("Zack","PUSH  GetInfoBtnClicked");
+		Log.d("Zack", "PUSH  GetInfoBtnClicked");
 		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer.push(DataLayer.mapOf("event",
-				"getinfo", // Event, Name of Open Screen Event.
-				"Label", "null", "Value",
-				"GetInfoBtn"));
+		mDataLayer.push(DataLayer.mapOf("event", "getinfo", // Event, Name of
+															// Open Screen
+															// Event.
+				"Label", "null", "Value", "GetInfoBtn"));
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle("Getting Info");
@@ -199,8 +224,7 @@ public class MainActivity extends Activity {
 		if (mContainerHolder != null) {
 
 			// mContainerHolder.refresh();
-			TagManager.getInstance(this).getDataLayer()
-					.push(DataLayer.EVENT_KEY, "custom_tag");
+			mDatalayer.push(DataLayer.EVENT_KEY, "custom_tag");
 			ContainerHolderSingleton.getContainerHolder().refresh();
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
@@ -267,10 +291,11 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Boolean result) {
-
-			long endTime = System.currentTimeMillis();
-			long pastTime = endTime - StartTime;
-			setContainerHolder(mContainerHolder, pastTime);
+			if (result) {
+				long endTime = System.currentTimeMillis();
+				long pastTime = endTime - StartTime;
+				setContainerHolder(mContainerHolder, pastTime);
+			}
 		}
 	}
 
@@ -296,9 +321,9 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("Zack","PUSH   ScreenOpen");
-		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
+		Log.d("Zack", "PUSH   ScreenOpen");
+		if(mDatalayer!=null)
+			mDatalayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
 				SCREEN_NAME));
 	}
 
