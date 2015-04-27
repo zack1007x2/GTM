@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import com.google.tagmanager.ContainerOpener;
-import com.google.tagmanager.ContainerOpener.OpenType;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -83,20 +81,6 @@ public class MainActivity extends Activity {
 		mDatalayer = TagManager.getInstance(this).getDataLayer();
 		 TagManager mTagManager = TagManager.getInstance(this);
 
-		    // The container is returned to containerFuture when available.
-		    ContainerOpener.openContainer(
-		        mTagManager,                            // TagManager instance.
-		        CONTAINER_ID,                           // Tag Manager Container ID.
-		        OpenType.PREFER_NON_DEFAULT,            // Prefer not to get the default container, but stale is OK.
-		        null,                                   // Time to wait for saved container to load (ms). Default is 2000ms.
-		        new ContainerOpener.Notifier() {        // Called when container loads.
-		          @Override
-		          public void containerAvailable(Container container) {
-		            // Handle assignment in callback to avoid blocking main thread.
-		            mContainer = container;
-		          }
-		        }
-		    );
 		
 		
 		
