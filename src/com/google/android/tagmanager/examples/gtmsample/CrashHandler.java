@@ -1,4 +1,5 @@
 package com.google.android.tagmanager.examples.gtmsample;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,6 +45,8 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 			"yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
 	private Thread errThread;
 	private Throwable errorInfoToFile;
+	private String ErrorLog;
+	private DataLayer datalayer;
 
 	private CrashHandler() {// 保證只產生一個實體
 	}
@@ -57,8 +60,9 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		return INSTANCE;
 	}
 
-	public void init(Context context) {
+	public void init(Context context, DataLayer datalayer) {
 		this.mContext = context;
+		this.datalayer = datalayer;
 		mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(this);
 		// scanner = new MediaScannerConnection(mContext, this);
@@ -70,8 +74,7 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		this.errThread = thread;
 		if (!handleException(ex) && mDefaultHandler != null)
 			mDefaultHandler.uncaughtException(thread, ex);
-		
-		
+
 	}
 
 	/**
@@ -124,13 +127,24 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		return true;
 	}
 
+	private void sentCrashInfo(Thread thread, Throwable ex)
+			throws InterruptedException {
+
+		Log.d("GoogleTagManager", "PUSHisError");
+		Log.d("GoogleTagManager", ErrorLog);
+
+		datalayer.pushEvent("isCrash",
+				DataLayer.mapOf("Description", ErrorLog, "IsFatal", "true"));
+		mDefaultHandler.uncaughtException(this.errThread, this.errorInfoToFile);
+	}
+
 	/**
 	 * 保存訊息至檔案
 	 * 
 	 * @param ex
 	 */
 	private void saveCrashInfoToFile(Thread thread, Throwable ex) {
-		Log.d("Zack","SAVE");
+		Log.d("Zack", "SAVE");
 		StringBuffer sb = new StringBuffer();
 		Writer writer = new StringWriter();
 		PrintWriter pw = new PrintWriter(writer);
@@ -183,8 +197,10 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 			mDefaultHandler.uncaughtException(thread, ex);
 		}
 	}
+
 	public boolean isOnline() {
-		ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager) mContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();
 		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
 			return true;
@@ -194,19 +210,21 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 
 	@Override
 	public void run() {
+
 		if (isOnline()) {
-			Log.d("Zack","PUSHisError");
-			DataLayer CrashDataLayer = TagManager.getInstance(mContext)
-					.getDataLayer();
-			CrashDataLayer.push(DataLayer.mapOf("Description",
-					new StandardExceptionParser(mContext, null)
-							.getDescription(Thread.currentThread()
-									.getName(), this.errorInfoToFile), "IsFatal", "true",
-					"isCrash", "true"));
+			ErrorLog = new StandardExceptionParser(mContext, null)
+					.getDescription(Thread.currentThread().getName(),
+							this.errorInfoToFile);
+			try {
+				sentCrashInfo(this.errThread, this.errorInfoToFile);
+			} catch (InterruptedException e) {
+				Log.d("GoogleTagManager", "Error Code InterruptedException");
+			}
+
 		}
-//		}else{
-//			saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
-//		}
+		// }else{
+		// saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
+		// }
 	}
-	
+
 }

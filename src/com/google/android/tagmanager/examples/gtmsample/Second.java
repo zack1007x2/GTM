@@ -2,7 +2,6 @@ package com.google.android.tagmanager.examples.gtmsample;
 
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
-import com.google.android.tagmanager.examples.helloworld.R;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -34,9 +33,9 @@ public class Second extends Activity{
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("Zack","PUSH   SecondScreenOpen");
+		Log.d("GoogleTagManager","PUSH   SecondScreenOpen");
 		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
+		mDataLayer.pushEvent("openScreen",DataLayer.mapOf("screenName",
 				SCREEN_NAME));
 	}
 

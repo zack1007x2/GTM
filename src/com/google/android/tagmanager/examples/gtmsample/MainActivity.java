@@ -31,7 +31,6 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
-import com.google.android.tagmanager.examples.helloworld.R;
 
 /**
  * An {@link Activity} that reads background and text color from a local Json
@@ -62,8 +61,8 @@ public class MainActivity extends Activity {
 				.setContainerAvailableListener(new ContainerLoadedCallback());
 		this.pastTime = pastTime;
 		if (mDatalayer != null) {
-			Log.d("Zack", "PUSH EVENT Time past = " + pastTime);
-			
+			Log.d("GoogleTagManager", "PUSH EVENT Time past = " + pastTime);
+
 			mDatalayer.push(DataLayer.mapOf("Var", "reFreshbtn", "Category",
 					"AsyncTask", "Time", pastTime, "Label",
 					"LoadContainerTime", "btnRefresh", "isClick"));
@@ -79,11 +78,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mDatalayer = TagManager.getInstance(this).getDataLayer();
-		 TagManager mTagManager = TagManager.getInstance(this);
+		TagManager mTagManager = TagManager.getInstance(this);
 
-		
-		
-		
 		init();
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
 	}
@@ -161,12 +157,10 @@ public class MainActivity extends Activity {
 	}
 
 	public void colorButtonClicked(@SuppressWarnings("unused") View view) {
-		Log.d("Zack", "PUSH  GetInfoBtnClicked");
+		Log.d("GoogleTagManager", "PUSH  GetInfoBtnClicked");
 		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer.push(DataLayer.mapOf("event", "getinfo", // Event, Name of
-															// Open Screen
-															// Event.
-				"Label", "null", "Value", "GetInfoBtn"));
+		mDataLayer.pushEvent("getinfo",
+				DataLayer.mapOf("Label", "null", "Value", "GetInfoBtn"));
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle("Getting Info");
@@ -204,6 +198,8 @@ public class MainActivity extends Activity {
 
 	public void refreshButtonClicked(@SuppressWarnings("unused") View view) {
 		Log.i(TAG, "refreshButtonClicked");
+		String a[] = new String[1];
+		System.out.print(a[3]);
 
 		if (mContainerHolder != null) {
 
@@ -213,8 +209,7 @@ public class MainActivity extends Activity {
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
 
-			String a[] = new String[1];
-			System.out.print(a[3]);
+			
 
 		}
 	}
@@ -305,10 +300,11 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d("Zack", "PUSH   ScreenOpen");
-		if(mDatalayer!=null)
-			mDatalayer.push(DataLayer.mapOf("event", "openScreen", "screenName",
-				SCREEN_NAME));
+		TagManager.getInstance(this).setVerboseLoggingEnabled(true);
+		Log.d("GoogleTagManager", "PUSH   ScreenOpen");
+		if (mDatalayer != null)
+			mDatalayer.pushEvent("openScreen",
+					DataLayer.mapOf("screenName", SCREEN_NAME));
 	}
 
 	@Override
