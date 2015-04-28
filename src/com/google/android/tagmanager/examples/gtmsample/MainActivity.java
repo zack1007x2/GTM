@@ -21,6 +21,7 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -52,6 +53,7 @@ public class MainActivity extends Activity {
 	public DataLayer mDatalayer;
 	private static final String SCREEN_NAME = "Main Screen";
 	private long pastTime;
+	private Button btRefresh;
 
 	private void setContainerHolder(ContainerHolder containerHolder,
 			long pastTime) {
@@ -67,6 +69,8 @@ public class MainActivity extends Activity {
 					"AsyncTask", "Time", pastTime, "Label",
 					"LoadContainerTime", "btnRefresh", "isClick"));
 		}
+		((MyListener) this.getApplication()).callback(mDatalayer);
+		btRefresh.setEnabled(true);
 
 	}
 
@@ -75,10 +79,16 @@ public class MainActivity extends Activity {
 		if (DEVELOPER_BUILD) {
 			StrictMode.enableDefaults();
 		}
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		
+		Log.d("GoogleTagManager", "HERE "+TagManager.getInstance(this).getDataLayer().toString());
+		
+		btRefresh = (Button)findViewById(R.id.refresh_txt);
+		btRefresh.setEnabled(false);
 		mDatalayer = TagManager.getInstance(this).getDataLayer();
-		TagManager mTagManager = TagManager.getInstance(this);
 
 		init();
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
@@ -311,6 +321,12 @@ public class MainActivity extends Activity {
 	public void onStop() {
 		super.onStop();
 	}
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d("GoogleTagManager", "onDestroy");
+		mContainerHolder.refresh();
+	}
 
 	public boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -319,6 +335,11 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return false;
+	}
+
+	
+	public interface MyListener {
+	    public void callback(DataLayer mDatalayer);
 	}
 
 }

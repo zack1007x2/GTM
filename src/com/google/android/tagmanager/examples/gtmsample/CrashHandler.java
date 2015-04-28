@@ -15,10 +15,16 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.facebook.widget.FacebookDialog.DialogFeature;
 import com.google.android.gms.analytics.StandardExceptionParser;
+import com.google.android.gms.tagmanager.Container;
+import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
 
+import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -46,7 +52,9 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 	private Thread errThread;
 	private Throwable errorInfoToFile;
 	private String ErrorLog;
-	private DataLayer datalayer;
+	private TagManager mTagManager;
+	private Activity curActivity;
+	private DataLayer mDataLayer;
 
 	private CrashHandler() {// 保證只產生一個實體
 	}
@@ -60,9 +68,8 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		return INSTANCE;
 	}
 
-	public void init(Context context, DataLayer datalayer) {
+	public void init(Context context) {
 		this.mContext = context;
-		this.datalayer = datalayer;
 		mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(this);
 		// scanner = new MediaScannerConnection(mContext, this);
@@ -132,9 +139,14 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 
 		Log.d("GoogleTagManager", "PUSHisError");
 		Log.d("GoogleTagManager", ErrorLog);
+		mTagManager.setVerboseLoggingEnabled(true);
 
-		datalayer.pushEvent("isCrash",
+//		DataLayer mdatalayer = mTagManager.getDataLayer();
+		
+		mDataLayer.pushEvent("isCrash",
 				DataLayer.mapOf("Description", ErrorLog, "IsFatal", "true"));
+		Log.d("GoogleTagManager", mDataLayer.toString());
+		// Log.d("GoogleTagManager", "Finish Push ERROR");
 		mDefaultHandler.uncaughtException(this.errThread, this.errorInfoToFile);
 	}
 
@@ -225,6 +237,18 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 		// }else{
 		// saveCrashInfoToFile(this.errThread, this.errorInfoToFile);
 		// }
+	}
+
+	public void setTagManager(TagManager tagManager) {
+		this.mTagManager = tagManager;
+	}
+
+	public void setcurActivity(Activity activity) {
+		this.curActivity = activity;
+	}
+
+	public void setContainerHolder(DataLayer mDataLayer) {
+		this.mDataLayer = mDataLayer;
 	}
 
 }
