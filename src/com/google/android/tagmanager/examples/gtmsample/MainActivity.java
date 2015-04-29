@@ -1,13 +1,8 @@
 package com.google.android.tagmanager.examples.gtmsample;
 
-import java.lang.reflect.Array;
-import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,9 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.StandardExceptionParser;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
@@ -44,6 +37,7 @@ public class MainActivity extends Activity {
 	private static final String TEXT_COLOR_KEY = "text-color";
 	private static final String NAME_KEY = "name";
 	private static final String MONEY_KEY = "money";
+	private static final String USER_ID = "px-123456789xxxx";
 	private TextView tvName, tvMoney;
 
 	// Set to false for release build.
@@ -52,7 +46,6 @@ public class MainActivity extends Activity {
 	public static Context mContext;
 	public DataLayer mDatalayer;
 	private static final String SCREEN_NAME = "Main Screen";
-	private long pastTime;
 	private Button btRefresh;
 
 	private void setContainerHolder(ContainerHolder containerHolder,
@@ -61,14 +54,11 @@ public class MainActivity extends Activity {
 		ContainerHolderSingleton.setContainerHolder(mContainerHolder);
 		mContainerHolder
 				.setContainerAvailableListener(new ContainerLoadedCallback());
-		this.pastTime = pastTime;
-		if (mDatalayer != null) {
-			Log.d("GoogleTagManager", "PUSH EVENT Time past = " + pastTime);
+		Log.d("GoogleTagManager", "PUSH EVENT Time past = " + pastTime);
 
-			mDatalayer.push(DataLayer.mapOf("Var", "reFreshbtn", "Category",
-					"AsyncTask", "Time", pastTime, "Label",
-					"LoadContainerTime", "btnRefresh", "isClick"));
-		}
+		mDatalayer.pushEvent("getConteiner", DataLayer.mapOf("Var",
+				"time Refresh", "Category", "AsyncTask", "Time", pastTime,
+				"Label", "LoadContainerTime"));
 		((MyListener) this.getApplication()).callback(mDatalayer);
 		btRefresh.setEnabled(true);
 
@@ -79,14 +69,14 @@ public class MainActivity extends Activity {
 		if (DEVELOPER_BUILD) {
 			StrictMode.enableDefaults();
 		}
-		
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		
-		Log.d("GoogleTagManager", "HERE "+TagManager.getInstance(this).getDataLayer().toString());
-		
-		btRefresh = (Button)findViewById(R.id.refresh_txt);
+
+		Log.d("GoogleTagManager", "HERE "
+				+ TagManager.getInstance(this).getDataLayer().toString());
+
+		btRefresh = (Button) findViewById(R.id.refresh_txt);
 		btRefresh.setEnabled(false);
 		mDatalayer = TagManager.getInstance(this).getDataLayer();
 
@@ -168,9 +158,12 @@ public class MainActivity extends Activity {
 
 	public void colorButtonClicked(@SuppressWarnings("unused") View view) {
 		Log.d("GoogleTagManager", "PUSH  GetInfoBtnClicked");
-		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
-		mDataLayer.pushEvent("getinfo",
-				DataLayer.mapOf("Label", "null", "Value", "GetInfoBtn"));
+		// mDataLayer.pushEvent("getinfo",
+		// DataLayer.mapOf("Label", "null", "Value", "GetInfoBtn"));
+
+		mDatalayer.pushEvent("isClick", DataLayer.mapOf("Label",
+				"Main GetInfo Button", "BtnName", "GetInfo Btn", "UserID",
+				USER_ID, "Var", "", "Category", "Button click"));
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle("Getting Info");
@@ -208,18 +201,27 @@ public class MainActivity extends Activity {
 
 	public void refreshButtonClicked(@SuppressWarnings("unused") View view) {
 		Log.i(TAG, "refreshButtonClicked");
-		String a[] = new String[1];
-		System.out.print(a[3]);
+		try {
+			String a[] = new String[1];
+			System.out.print(a[3]);
+		} catch (Exception e) {
+
+			mDatalayer.pushEvent("isCrash", DataLayer.mapOf("Description",
+					new StandardExceptionParser(mContext, null).getDescription(
+							Thread.currentThread().getName(), e), "IsFatal",
+					"true"));
+			Log.d("GoogleTagManager", mDatalayer.toString());
+		}
 
 		if (mContainerHolder != null) {
 
 			// mContainerHolder.refresh();
-			mDatalayer.push(DataLayer.EVENT_KEY, "custom_tag");
+			mDatalayer.pushEvent("isClick", DataLayer.mapOf("Label",
+					"Main Refresh Button", "BtnName", "Refresh Btn", "UserID",
+					USER_ID, "Var", "", "Category", "Button click"));
 			ContainerHolderSingleton.getContainerHolder().refresh();
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
-
-			
 
 		}
 	}
@@ -256,8 +258,6 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
-			String containerId = params[0];
-
 			TagManager tagManager = TagManager.getInstance(mActivity);
 			tagManager.setVerboseLoggingEnabled(true);
 
@@ -321,6 +321,7 @@ public class MainActivity extends Activity {
 	public void onStop() {
 		super.onStop();
 	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -337,9 +338,8 @@ public class MainActivity extends Activity {
 		return false;
 	}
 
-	
 	public interface MyListener {
-	    public void callback(DataLayer mDatalayer);
+		public void callback(DataLayer mDatalayer);
 	}
 
 }

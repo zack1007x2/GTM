@@ -37,35 +37,25 @@ public class CrashApplication extends Application implements MyListener{
 			@Override
 			public void onActivityCreated(Activity activity,
 					Bundle savedInstanceState) {
-				Log.d("Application",
-						"onActivityCreated = " + activity.toString());
 
 			}
 
 			@Override
 			public void onActivityStarted(Activity activity) {
-				Log.d("Application",
-						"onActivityStarted = " + activity.toString());
 			}
 
 			@Override
 			public void onActivityResumed(Activity activity) {
-				Log.d("Application",
-						"onActivityResumed = " + activity.toString());
-				crashHandler.setTagManager(TagManager.getInstance(activity));
-				crashHandler.setcurActivity(activity);
+//				crashHandler.setTagManager(TagManager.getInstance(activity));
+//				crashHandler.setcurActivity(activity);
 			}
 
 			@Override
 			public void onActivityPaused(Activity activity) {
-				Log.d("Application",
-						"onActivityPaused = " + activity.toString());
 			}
 
 			@Override
 			public void onActivityStopped(Activity activity) {
-				Log.d("Application",
-						"onActivityStopped = " + activity.toString());
 			}
 
 			@Override

@@ -8,6 +8,12 @@
         android:id="@+id/btReturn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="Return" />
+
+    <Button
+        android:id="@+id/btLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="讚" />
 
 </LinearLayout>

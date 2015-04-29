@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class Second extends Activity{
-	private Button btReturn;
+	private Button btReturn,btLike;
 	private static final String SCREEN_NAME = "Second Screen";
 	
 	@Override
@@ -26,6 +26,16 @@ public class Second extends Activity{
 			public void onClick(View v) {
 				finish();
 			}
+		});
+		btLike = (Button)findViewById(R.id.btLike);
+		btLike.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				DataLayer mDataLayer = TagManager.getInstance(Second.this).getDataLayer();
+				mDataLayer.pushEvent("isLike",DataLayer.mapOf("ActionTarget","https://developers.google.com/tag-manager"));
+				Log.d("GoogleTagManager",mDataLayer.toString());
+			}
+			
 		});
 		
 	}

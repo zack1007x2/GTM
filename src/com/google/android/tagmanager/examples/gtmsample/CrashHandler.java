@@ -15,16 +15,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import com.facebook.widget.FacebookDialog.DialogFeature;
 import com.google.android.gms.analytics.StandardExceptionParser;
-import com.google.android.gms.tagmanager.Container;
-import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -53,6 +48,7 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 	private Throwable errorInfoToFile;
 	private String ErrorLog;
 	private TagManager mTagManager;
+	@SuppressWarnings("unused")
 	private Activity curActivity;
 	private DataLayer mDataLayer;
 
@@ -155,6 +151,7 @@ public class CrashHandler implements UncaughtExceptionHandler, Runnable {
 	 * 
 	 * @param ex
 	 */
+	@SuppressWarnings("unused")
 	private void saveCrashInfoToFile(Thread thread, Throwable ex) {
 		Log.d("Zack", "SAVE");
 		StringBuffer sb = new StringBuffer();
