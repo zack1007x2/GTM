@@ -160,10 +160,9 @@ public class MainActivity extends Activity {
 		Log.d("GoogleTagManager", "PUSH  GetInfoBtnClicked");
 		// mDataLayer.pushEvent("getinfo",
 		// DataLayer.mapOf("Label", "null", "Value", "GetInfoBtn"));
-
-		mDatalayer.pushEvent("isClick", DataLayer.mapOf("Label",
-				"Main GetInfo Button", "BtnName", "GetInfo Btn", "UserID",
-				USER_ID, "Var", "", "Category", "Button click"));
+		mDatalayer.pushEvent("isClick", DataLayer.mapOf( "Category", "Button click", "Action", "Click", "Label",
+				"Main GetInfo Button", "UserID",
+				USER_ID, "Value", "GetInfo Btn"));
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle("Getting Info");
@@ -216,9 +215,9 @@ public class MainActivity extends Activity {
 		if (mContainerHolder != null) {
 
 			// mContainerHolder.refresh();
-			mDatalayer.pushEvent("isClick", DataLayer.mapOf("Label",
-					"Main Refresh Button", "BtnName", "Refresh Btn", "UserID",
-					USER_ID, "Var", "", "Category", "Button click"));
+			mDatalayer.pushEvent("isClick", DataLayer.mapOf( "Category", "Button click", "Action", "Click", "Label",
+					"Main Refresh Button", "UserID",
+					USER_ID, "Value", "Refresh Btn"));
 			ContainerHolderSingleton.getContainerHolder().refresh();
 			// Map<String, Object> (this).getDataLayer().push(map);
 			updateUI();
