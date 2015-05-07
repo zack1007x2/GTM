@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
 		if (BlueToothHandler.isBlueToothOn()) {
 			tvMoney.setText(getMoney(MONEY_KEY));
 		} else {
-			tvMoney.setText("This is Tag Test " + Handler123.getKey1()
+			tvMoney.setText("This is Tag Test key1=" + Handler123.getKey1()+"key2 = "
 					+ Handler123.getKey2());
 		}
 
