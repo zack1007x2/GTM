@@ -19,12 +19,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+<<<<<<< HEAD:src/com/google/android/tagmanager/examples/gtmsample/MainActivity.java
 import com.google.android.gms.analytics.StandardExceptionParser;
+=======
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.StandardExceptionParser;
+import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.analytics.Logger.LogLevel;
+>>>>>>> origin/GA-SDK:src/com/google/android/tagmanager/examples/helloworld/MainActivity.java
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.DataLayer;
 import com.google.android.gms.tagmanager.TagManager;
+import com.google.android.tagmanager.examples.helloworld.CrashApplication.TrackerName;
 
 /**
  * An {@link Activity} that reads background and text color from a local Json
@@ -72,6 +81,7 @@ public class MainActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+<<<<<<< HEAD:src/com/google/android/tagmanager/examples/gtmsample/MainActivity.java
 
 		Log.d("GoogleTagManager", "HERE "
 				+ TagManager.getInstance(this).getDataLayer().toString());
@@ -79,6 +89,32 @@ public class MainActivity extends Activity {
 		btRefresh = (Button) findViewById(R.id.refresh_txt);
 		btRefresh.setEnabled(false);
 		mDatalayer = TagManager.getInstance(this).getDataLayer();
+=======
+		init();
+		allowcaculate = false;
+		new DownloadContainerTask(this).execute(CONTAINER_ID);
+		try{		
+			String s =null;
+			System.out.print("A = "+s.toString());
+		}catch(Exception e){
+			GoogleAnalytics.getInstance(this).setDryRun(true);
+			GoogleAnalytics.getInstance(this).getLogger()
+		    .setLogLevel(LogLevel.VERBOSE);
+			
+			Tracker t = ((CrashApplication) this.getApplication()).getTracker(
+				    TrackerName.GLOBAL_TRACKER);
+
+				  t.send(new HitBuilders.ExceptionBuilder()
+				      .setDescription(
+				          new StandardExceptionParser(mContext, null)
+				              .getDescription(Thread.currentThread().getName(), e))
+				      .setFatal(false)
+				      .build());
+		}
+		
+		
+		
+>>>>>>> origin/GA-SDK:src/com/google/android/tagmanager/examples/helloworld/MainActivity.java
 
 		init();
 		new DownloadContainerTask(this).execute(CONTAINER_ID);
@@ -101,7 +137,6 @@ public class MainActivity extends Activity {
 			tvMoney.setText("This is Tag Test key1=" + Handler123.getKey1()+"key2 = "
 					+ Handler123.getKey2());
 		}
-
 	}
 
 	private String getMoney(String key) {
@@ -257,8 +292,15 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected Boolean doInBackground(String... params) {
+<<<<<<< HEAD:src/com/google/android/tagmanager/examples/gtmsample/MainActivity.java
 			TagManager tagManager = TagManager.getInstance(mActivity);
 			tagManager.setVerboseLoggingEnabled(true);
+=======
+			String containerId = params[0];
+
+				TagManager tagManager = TagManager.getInstance(mActivity);
+				tagManager.setVerboseLoggingEnabled(true);
+>>>>>>> origin/GA-SDK:src/com/google/android/tagmanager/examples/helloworld/MainActivity.java
 
 			PendingResult<ContainerHolder> pending = tagManager
 					.loadContainerPreferNonDefault(CONTAINER_ID,
@@ -310,10 +352,16 @@ public class MainActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 		TagManager.getInstance(this).setVerboseLoggingEnabled(true);
+<<<<<<< HEAD:src/com/google/android/tagmanager/examples/gtmsample/MainActivity.java
 		Log.d("GoogleTagManager", "PUSH   ScreenOpen");
 		if (mDatalayer != null)
 			mDatalayer.pushEvent("openScreen",
 					DataLayer.mapOf("screenName", SCREEN_NAME));
+=======
+		DataLayer mDataLayer = TagManager.getInstance(this).getDataLayer();
+		mDataLayer.pushEvent("openScreen", DataLayer.mapOf("screenName", SCREEN_NAME));
+		mDataLayer.push("a", "B");
+>>>>>>> origin/GA-SDK:src/com/google/android/tagmanager/examples/helloworld/MainActivity.java
 	}
 
 	@Override
